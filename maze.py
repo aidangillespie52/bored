@@ -44,7 +44,7 @@ def get_new_neighbors(y,x):
     
     return nbs
 
-def search(y,x):
+def create_map(y,x):
     visited[y][x] = True
     edge_dict[(y,x)] = []
 
@@ -60,7 +60,7 @@ def search(y,x):
         nb = (ny,nx) = nbs[0]
         if not visited[ny][nx]: 
             edge_dict[(y,x)].append(nb)
-            search(ny, nx)
+            create_map(ny, nx)
             nbs = get_new_neighbors(y,x)
             random.shuffle(nbs)
     
@@ -88,7 +88,6 @@ def plot_maze_from_edges(edge_dict, size):
     def connected(a, b):
         return tuple(sorted((a, b))) in passages
 
-    fig, ax = plt.subplots(figsize=(6,6))
     ax.set_aspect("equal")
 
     # --- interior walls ---
@@ -121,8 +120,39 @@ def plot_maze_from_edges(edge_dict, size):
     ax.set_xlim(0,size)
     ax.set_ylim(size,0)
     ax.axis("off")
+
     plt.show()
 
-search(start_y, start_x)
+def dfs_path(edge_dict, start, goal):
+    stack = [start]
+    parent = {start: None}
+    while stack:
+        v = stack.pop()
+        if v == goal:
+            break
+        for nb in edge_dict.get(v, []):
+            if nb not in parent:
+                parent[nb] = v
+                stack.append(nb)
+
+    if goal not in parent:
+        return None
+
+    # backtrack
+    path = []
+    cur = goal
+    while cur is not None:
+        path.append(cur)
+        cur = parent[cur]
+    return path[::-1]
+
+create_map(start_y, start_x)
 plot_maze_from_edges(edge_dict, size)
+
+path = dfs_path(edge_dict, (0,0), (size-1, size-1))
+if path:
+    xs = [x+0.5 for (y,x) in path]
+    ys = [y+0.5 for (y,x) in path]
+    ax.plot(xs, ys, linewidth=4, color="green")
+
 input()
