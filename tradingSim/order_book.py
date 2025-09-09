@@ -1,6 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
-import uuid
+from execution_report import ExecutionReport
 
 @dataclass
 class Order:
